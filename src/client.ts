@@ -1,5 +1,6 @@
 import EventEmitter from 'events';
 import { Context, initialize, Unleash, Variant } from 'unleash-client';
+import { FeatureInterface } from 'unleash-client/lib/feature';
 import Metrics from 'unleash-client/lib/metrics';
 import { defaultStrategies } from 'unleash-client/lib/strategy';
 import { IProxyConfig } from './config';
@@ -34,6 +35,7 @@ export interface IClient extends EventEmitter {
         toggleNames: string[],
         context: Context,
     ) => FeatureToggleStatus[];
+    getFeatureToggleDefinitions(): FeatureInterface[];
     registerMetrics(metrics: any): void;
     isReady(): boolean;
 }
@@ -74,6 +76,7 @@ class Client extends EventEmitter implements IClient {
             namePrefix: config.namePrefix,
             tags: config.tags,
             customHeadersFunction,
+            bootstrap: config.bootstrap,
         });
 
         // Custom metrics Instance
@@ -138,6 +141,10 @@ class Client extends EventEmitter implements IClient {
                 variant: this.unleash.getVariant(name, context),
             };
         });
+    }
+
+    getFeatureToggleDefinitions(): FeatureInterface[] {
+        return this.unleash.getFeatureToggleDefinitions();
     }
 
     /*
